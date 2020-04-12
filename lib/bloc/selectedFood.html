@@ -1,0 +1,241 @@
+<script src="/scripts/jquery-1.11.1.js"></script>
+<script src="/scripts/jquery-ui.js"></script> 
+<link href="/styles/jquery-ui.css" rel="stylesheet"/>
+
+<style>
+	#pageContentTitle{ display:none;}
+	.tab {
+		float: left;
+		background: rgba(241, 241, 241, 1);
+		height: 30px;
+		padding: 0px 35px;
+		margin-right: 2px;
+		line-height: 30px;
+		text-align: center;
+		font-weight: 300;
+		font-size: 14px;
+		color: #808080;
+		font-family: "Segoe UI Light", "Segoe UI";
+		border-radius: 4px;
+		cursor: pointer;
+	}
+	.tabSelected {
+		background: rgba(152, 152, 152, 1) !important;
+		color: #fff !Important;
+		font-weight: 700 !important;
+		font-family: "Segoe UI Semibold", "Segoe UI" !important;
+	}
+	.methodHeading {
+		font-family: 'Segoe UI Light', 'Segoe UI'; 
+		font-weight: 300; 
+		font-style: normal; 
+		font-size: 24px; 
+		color: #808080;
+		line-height:normal;
+	}      
+	#text a {
+		text-decoration: none !important;
+	}
+	.static{line-height:normal}
+	p.solid {
+		border-style: solid;
+	}
+	body {
+		font-family: "Segoe UI Bold", "Segoe UI";
+		font-style: normal;
+		line-height: 10px;
+		font-size: 13px;
+	}
+	#text {
+		line-height: 1.4em;
+	}
+	.ui-autocomplete{
+	    height:165px;
+	    overflow-x:hidden;
+	    overflow-y:auto;
+	    line-height:1.5em;
+	}	
+	.methodsCol {
+		float: left;
+		width: 33.3%;
+	}
+	.methodsTitle {
+		line-height: normal;
+		font-weight: 400;
+		color: #337fc0;
+	}
+	.methodLetter {
+		font-weight: 700;
+		color: #666;
+		font-size: 20px;
+	}
+	.clearfix{
+		clear:both;
+	}
+	.methods{
+		display:none;		
+	}
+</style>
+    
+<script>
+	$(document).ready(function () {
+		$(".tab").click(function () {
+			if (!$(this).hasClass("tabSelected")) {
+				$(".tab").removeClass("tabSelected");
+				$(this).addClass("tabSelected");
+				resetLetters();
+				fetchmethods(this.id);
+				document.cookie="lastViewedTab="+this.id+"; expires=Wed, 01-Apr-2037 12:00:00 UTC; path=/";
+			}
+		 });      
+		var currentTab=getCookie("lastViewedTab");
+		if (currentTab==null)
+			currentTab="All";	
+		$("#"+currentTab).addClass("tabSelected");
+		resetLetters();
+		fetchmethods(currentTab);
+	});
+
+
+	function fetchmethods(selectedFood,) {
+		var methods= [];           
+		$.ajax({
+			url: "../_api/web/lists/GetByTitle('XXXXXX')/items?$orderby=Title&$top=200",
+	        type: "GET",
+	        headers: {
+	            "accept": "application/json;odata=verbose",
+	        },
+	        success: function (data) {	
+			    $.each(data.d.results, function (index, item) {
+					if (item.Food.indexOf(selectedFood)!=-1 || selectedFood=="All") {
+						var title=item.Title;
+		
+						methods[index]=item.Title;
+						var link=item.MethodURL.Url;
+						var isAlpha="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+						var firstLetter=title.toUpperCase().substring(0,1)
+						if (isAlpha.indexOf(firstLetter)==-1)
+							firstLetter="nonAlpha";
+						var data=title;
+						if (item.MethodType=="Bold")
+							title="<b>"+title+"<b>";
+						if (item.MethodType=="Regular")
+							title="<i>"+title+"<i>";			
+						$("#"+firstLetter).append("<div style='margin-bottom:15px;'><span class='methodsTitle' data-title='"+data+"'><a href='"+link+"' target='_blank'>"+title+"</a><br /></span><div>");
+					}
+				
+        		});
+			$(".methods").css("padding-right","10px");
+			filter();
+			$(".methodHeading").html(selectedFood+" Methods");
+	        },
+        	error: function (error) {
+	            alert(JSON.stringify(error));
+	        }
+	    });
+	}
+	
+	function resetLetters() {
+		$(".methods").hide();
+		$("#nonAlpha").html("<p class='methodLetter'>#</p>");	
+		$("#A").html("<p class='methodLetter'>A</p>");	
+		$("#B").html("<p class='methodLetter'>B</p>");	
+		$("#C").html("<p class='methodLetter'>C</p>");	
+		$("#D").html("<p class='methodLetter'>D</p>");	
+		$("#E").html("<p class='methodLetter'>E</p>");
+		$("#F").html("<p class='methodLetter'>F</p>");
+		$("#G").html("<p class='methodLetter'>G</p>");
+		$("#H").html("<p class='methodLetter'>H</p>");
+		$("#I").html("<p class='methodLetter'>I</p>");
+		$("#J").html("<p class='methodLetter'>J</p>");
+		$("#K").html("<p class='methodLetter'>K</p>");
+		$("#L").html("<p class='methodLetter'>L</p>");
+		$("#M").html("<p class='methodLetter'>M</p>");
+		$("#N").html("<p class='methodLetter'>N</p>");
+		$("#O").html("<p class='methodLetter'>O</p>");
+		$("#P").html("<p class='methodLetter'>P</p>");
+		$("#Q").html("<p class='methodLetter'>Q</p>");
+		$("#R").html("<p class='methodLetter'>R</p>");
+		$("#S").html("<p class='methodLetter'>S</p>");
+		$("#T").html("<p class='methodLetter'>T</p>");
+		$("#U").html("<p class='methodLetter'>U</p>");
+		$("#V").html("<p class='methodLetter'>V</p>");
+		$("#W").html("<p class='methodLetter'>W</p>");
+		$("#X").html("<p class='methodLetter'>X</p>");
+		$("#Y").html("<p class='methodLetter'>Y</p>");
+		$("#Z").html("<p class='methodLetter'>Z</p>");		
+	}
+	   
+	function getCookie(cName){
+		var cValue = "; " + document.cookie;
+		var cParts = cValue.split("; " + cName + "=");
+     	if (cParts.length == 2) return cParts.pop().split(";").shift();
+     }
+
+	function filter(){
+		$(".methodsTitle").show();
+		$(".methods").each(function () {
+			if (!$(this).find("span").length)
+				$(this).hide();
+			else
+				$(this).show();
+		});
+	}
+	
+</script>
+
+<div id="text">
+	
+    </div>
+
+    <div id="tabs">
+        <div id="All" class="tab">All</div>    
+        <div id="Bread" class="tab">Bread</div>
+        <div id="Milk" class="tab">Milk</div>
+        <div id="Sugar" class="tab">Sugar</div>
+        <div id="Tea" class="tab">Tea</div>  
+        <------The one below to be the separate tab that uses the "Cars" solution----->
+		<div id="Cars" class="tab">Cars</div>  
+        <div class="clearfix"></div>
+    </div>
+
+	<div>
+		<p class="methodHeading">Methods</p>	
+	</div>
+
+    <div id="MethodsBox" style="margin-top:20px;">
+        <div id="methodsCol1" class="methodsCol">
+            <div id="nonAlpha" class="methods"></div>
+            <div id="A" class="methods"></div>
+            <div id="B" class="methods"></div>
+            <div id="C" class="methods"></div>
+            <div id="D" class="methods"></div>
+            <div id="E" class="methods"></div>
+            <div id="F" class="methods"></div>
+            <div id="G" class="methods"></div>
+        </div>
+        <div id="methodsCol2" class="methodsCol">
+            <div id="H" class="methods"></div>
+            <div id="I" class="methods"></div>
+            <div id="J" class="methods"></div>
+            <div id="K" class="methods"></div>
+            <div id="L" class="methods"></div>
+            <div id="M" class="methods"></div>
+            <div id="N" class="methods"></div>
+            <div id="O" class="methods"></div>
+        </div>
+        <div id="methodsCol3" class="methodsCol">
+            <div id="P" class="methods"></div>
+            <div id="Q" class="methods"></div>
+            <div id="R" class="methods"></div>
+            <div id="S" class="methods"></div>
+            <div id="T" class="methods"></div>
+            <div id="U" class="methods"></div>
+            <div id="V" class="methods"></div>
+           <div id="W" class="methods"></div>
+            <div id="X" class="methods"></div>
+            <div id="Y" class="methods"></div>
+            <div id="Z" class="methods"></div>
+        </div>
+        <div class="clearfix"></div>
+</div>
